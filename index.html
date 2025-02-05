@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prayer Times</title>
+    <link rel="icon" type="image/png" href="masjid.png" />
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+
+<body>
+
+    <audio id="background-audio" loop>
+        <source src="selawat.mp3" type="audio/mpeg">
+    </audio>
+
+    <img src="masjid.png" alt="logo2" style="height: 350px; width: auto;">
+
+    <h1>Prayer Times</h1>
+
+    <div>
+        <select id="prayerzone" class="form-select" aria-label="pilih waktu solat">
+            <option value="KTN01">Kelantan - Bachok, Kota Bharu, Machang, Tumpat, Kuala Krai</option>
+            <option value="KTN02">Kelantan - Gua Musang (Daerah Galas Dan Bertam), Jeli</option>
+            <option value="TRG01">Terengganu - Kuala Terengganu, Marang, Kuala Nerus</option>
+            <option value="TRG02">Terengganu - Besut, Setiu</option>
+            <option value="TRG03">Terengganu - Hulu Terengganu</option>
+            <option value="TRG04">Terengganu - Dungun, Kemaman</option>
+            <option value="PHG01">Pahang - Pulau Tioman</option>
+            <option value="PHG02">Pahang - Kuantan, Pekan, Rompin, Muadzam Shah</option>
+            <option value="PHG03">Pahang - Jerantut, Temerloh, Maran, Bera, Chenor, Jengka</option>
+            <option value="PHG04">Pahang - Bentong, Lipis, Raub</option>
+            <option value="PHG05">Pahang - Genting Sempah, Janda Baik, Bukit Tinggi</option>
+            <option value="PHG06">Pahang - Cameron Highlands, Genting Higlands, Bukit Fraser</option>
+        </select>
+    </div>
+
+
+    <table>
+        <tr>
+            <td>Fajr</td>
+            <td>Zuhr</td>
+            <td>Asr</td>
+            <td class="active">Maghrib</td>
+            <td>Isha</td>
+        </tr>
+        <tr>
+            <td id="subuh"></td>
+            <td id="dzuhur"></td>
+            <td id="ashar"></td>
+            <td id="magrib"></td>
+            <td id="isya"></td>
+        </tr>
+    </table>
+
+    <hr style="width:100%;text-align:center;margin-left:0">
+
+    <a href="#">View Monthly Timetable</a>
+
+
+
+
+
+
+
+
+
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var audio = document.getElementById("background-audio");
+
+            // Attempt to play when the page loads (some browsers may block this)
+            audio.play().catch(function () {
+                console.log("Autoplay blocked, waiting for user interaction.");
+            });
+
+            // Play when user interacts (click/tap)
+            document.addEventListener("click", function () {
+                audio.play();
+            });
+        });
+    </script>
+
+
+
+
+
+
+
+
+    <script>
+
+        $(document).ready(function () {
+            var selectedValue = $("#prayerzone").val();
+            getData(selectedValue);
+
+            $("#prayerzone").change(function () {
+                var selectedValue = $(this).val();
+                getData(selectedValue);
+            });
+        });
+
+        function getData(prayercode) {
+            var endpoint = "https://www.e-solat.gov.my/index.php?r=esolatApi/takwimsolat&zone=" + prayercode + "&period=today";
+
+            $.ajax({
+                url: endpoint,
+                method: 'GET',
+                success: function (result) {
+                    console.log(result);
+
+                    function convertTo12Hour(time) {
+                        let [hours, minutes] = time.split(':');
+                        hours = parseInt(hours);
+                        let period = hours >= 12 ? 'PM' : 'AM';
+                        hours = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+                        return `${hours}:${minutes} ${period}`;
+                    }
+
+                    $("#prayercode").html(result.zone);
+                    $("#subuh").html(convertTo12Hour(result.prayerTime[0].fajr));
+                    $("#dzuhur").html(convertTo12Hour(result.prayerTime[0].dhuhr));
+                    $("#ashar").html(convertTo12Hour(result.prayerTime[0].asr));
+                    $("#magrib").html(convertTo12Hour(result.prayerTime[0].maghrib));
+                    $("#isya").html(convertTo12Hour(result.prayerTime[0].isha));
+                }
+            });
+
+        }
+    </script>
+</body>
+
+</html>
